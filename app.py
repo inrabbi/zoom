@@ -339,13 +339,6 @@ def region_info():
         })
 
 if __name__ == '__main__':
-    # Print startup info
-    print("=" * 50)
-    print("Zoom Meeting Flask Application")
-    print("=" * 50)
-    print(f"Telegram Bot: {'Configured' if TELEGRAM_BOT_TOKEN else 'Not configured'}")
-    print(f"Chat ID: {TELEGRAM_CHAT_ID}")
-    print(f"Running on: http://localhost:5000")
-    print("=" * 50)
+    
     
     app.run(debug=True, port=5000, host='0.0.0.0')
