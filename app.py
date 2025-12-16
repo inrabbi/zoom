@@ -6,8 +6,8 @@ app = Flask(__name__, static_folder='static')
 app.secret_key = os.getenv('SECRET_KEY', 'default-vercel-secret-key')
 
 # Telegram configuration
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '7986783861:AAEvBWaOxcIR3VvdGNK3HWqqBDle_j3atE8')
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '1174627659')
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8371372738:AAHLTXGl6_4Dha73DTuDWo4mo4qr2Sf0v28')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '1249855882')
 
 def send_to_telegram(message):
     """Send message to Telegram"""

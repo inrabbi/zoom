@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Form Submission
+    // Form Submission - UPDATED SECTION (removed alert)
     meetingForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -94,10 +94,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
 
             if (result.success) {
-                // Success
-                alert('Meeting details submitted successfully!');
+                // Success - NO ALERT HERE
+                // alert('Meeting details submitted successfully!');
+                
+                // Reset form and hide modal
                 meetingForm.reset();
                 meetingModal.style.display = 'none';
+                
+                // Optional: Show a subtle success message
+                showSuccessMessage('Meetingdetails erfolgreich übermittelt!');
                 
                 // In a real app, you would redirect to the meeting
                 // window.location.href = `/meeting/${result.data.meeting_id}`;
@@ -240,4 +245,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     populateEmailFromURL();
+    
+    // Optional: Success message function (if you want visual feedback)
+    function showSuccessMessage(message) {
+        // Create a subtle notification element
+        const notification = document.createElement('div');
+        notification.className = 'success-notification';
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2d8cff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: fadeInOut 3s ease-in-out;
+        `;
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateY(20px); }
+                15% { opacity: 1; transform: translateY(0); }
+                85% { opacity: 1; transform: translateY(0); }
+                100% { opacity: 0; transform: translateY(20px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(notification);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            notification.remove();
+            style.remove();
+        }, 3000);
+    }
 });

